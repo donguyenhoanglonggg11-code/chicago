@@ -1,6 +1,7 @@
 -- ============================================
--- OREO HUB CHICAGO - FIX GIỮ E LỤM HỘP + SỬA LỖI CÚ PHÁP
--- Version: 7.2 - Hoàn chỉnh, chạy được ngay
+-- OREO HUB CHICAGO - ULTIMATE FIX
+-- Tác giả: Oreo x Sobi
+-- Version: 7.0 - Fix lụm hộp + GitHub Ready
 -- ============================================
 
 local player = game.Players.LocalPlayer
@@ -72,7 +73,7 @@ screenGui.Parent = gui
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 600, 0, 500)
 mainFrame.Position = UDim2.new(0.5, -300, 0.5, -250)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)      -- Màu đen tuyền
 mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
@@ -108,7 +109,7 @@ local version = Instance.new("TextLabel")
 version.Size = UDim2.new(0.2, 0, 1, 0)
 version.Position = UDim2.new(0.6, 0, 0, 0)
 version.BackgroundTransparency = 1
-version.Text = "v7.2"
+version.Text = "v7.0"
 version.TextColor3 = Color3.fromRGB(100, 100, 140)
 version.TextSize = 14
 version.Font = Enum.Font.GothamMedium
@@ -519,7 +520,7 @@ local creditText = Instance.new("TextLabel")
 creditText.Size = UDim2.new(1, -40, 1, -40)
 creditText.Position = UDim2.new(0, 20, 0, 40)
 creditText.BackgroundTransparency = 1
-creditText.Text = "Oreo Hub Chicago\n\nVersion 7.2\n\nCrafted by Oreo x Sobi\n\n\"Fix giữ E lụm hộp\""
+creditText.Text = "Oreo Hub Chicago\n\nVersion 7.0\n\nCrafted by Oreo x Sobi\n\n\"Fix lụm hộp chuẩn\""
 creditText.TextColor3 = Color3.fromRGB(255, 215, 0)
 creditText.TextSize = 18
 creditText.Font = Enum.Font.GothamBold
@@ -604,7 +605,7 @@ userInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- ============================================
--- ===== PHẦN CHỨC NĂNG FARM (FIX GIỮ E) =====
+-- ===== PHẦN CHỨC NĂNG FARM (FIX LỤM HỘP) =====
 -- ============================================
 local success, err = pcall(function()
     -- ===== TÌM PART =====
@@ -649,7 +650,7 @@ local success, err = pcall(function()
         return true
     end
 
-    -- ===== TƯƠNG TÁC HỘP (GIỮ E LIÊN TỤC) =====
+    -- ===== TƯƠNG TÁC HỘP (GIỮ E ĐÚNG CÁCH) =====
     local function interactWithBox(targetPos)
         local char = player.Character
         if not char then return false end
@@ -686,9 +687,9 @@ local success, err = pcall(function()
         -- 5. GIỮ E LIÊN TỤC (QUAN TRỌNG)
         local vim = game:GetService("VirtualInputManager")
         if vim then
-            vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-            task.wait(HOLD_E_TIME)
-            vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+            vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)  -- Bấm giữ
+            task.wait(HOLD_E_TIME)                               -- Giữ trong 3s
+            vim:SendKeyEvent(false, Enum.KeyCode.E, false, game) -- Thả ra
         elseif keypress and keyrelease then
             keypress(Enum.KeyCode.E)
             task.wait(HOLD_E_TIME)
@@ -1086,7 +1087,7 @@ pcall(function()
     print("[Oreo] ✅ ESP functions loaded!")
 end)
 
-print("✅ Oreo Hub Chicago v7.2 - GIỮ E LỤM HỘP CHUẨN - SẴN SÀNG DÙNG")
+print("✅ Oreo Hub Chicago v7.0 - GIỮ E LỤM HỘP CHUẨN")
 print("   - Nhấn phím K để toggle menu")
 print("   - Click nút tròn để mở menu")
 print("   - Farm: Bật Auto Farm Cash (giữ E 3 giây để lụm hộp)")
