@@ -1,7 +1,7 @@
 -- ============================================
--- OREO HUB CHICAGO - UI RỘNG + ESP + FARM LỤM HỘP (FIX CUỐI)
+-- OREO HUB CHICAGO - ULTIMATE FIX
 -- Tác giả: Oreo x Sobi
--- Sửa: Nhấn E nhiều lần thay vì giữ, đứng chuẩn trên sàn
+-- Version: 7.0 - Fix lụm hộp + GitHub Ready
 -- ============================================
 
 local player = game.Players.LocalPlayer
@@ -17,8 +17,7 @@ local FOLDER = "DontDeleteTheseObjects"
 local MOVE_STEPS = 30
 local MOVE_DELAY = 0.015
 local CYCLE_DELAY = 1.5
-local PRESS_COUNT = 8            -- Số lần nhấn E
-local PRESS_DELAY = 0.15         -- Delay giữa các lần nhấn (giây)
+local HOLD_E_TIME = 3.0             -- Giữ E 3 giây (tăng nếu cần)
 local FLY_HEIGHT = 2.5
 local STAND_OFFSET = 1.2
 
@@ -64,7 +63,7 @@ Instance.new("UICorner", toggleBtn).CornerRadius = UDim.new(1, 0)
 toggleBtn.Visible = false
 
 -- ============================================
--- TẠO GUI CHÍNH (RỘNG, MÀU ĐEN)
+-- TẠO GUI CHÍNH (MÀU ĐEN, RỘNG)
 -- ============================================
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "OreoHubChicago"
@@ -74,8 +73,8 @@ screenGui.Parent = gui
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 600, 0, 500)
 mainFrame.Position = UDim2.new(0.5, -300, 0.5, -250)
-mainFrame.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-mainFrame.BackgroundTransparency = 0.1
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)      -- Màu đen tuyền
+mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
 mainFrame.Draggable = true
@@ -110,7 +109,7 @@ local version = Instance.new("TextLabel")
 version.Size = UDim2.new(0.2, 0, 1, 0)
 version.Position = UDim2.new(0.6, 0, 0, 0)
 version.BackgroundTransparency = 1
-version.Text = "v6.2"
+version.Text = "v7.0"
 version.TextColor3 = Color3.fromRGB(100, 100, 140)
 version.TextSize = 14
 version.Font = Enum.Font.GothamMedium
@@ -521,7 +520,7 @@ local creditText = Instance.new("TextLabel")
 creditText.Size = UDim2.new(1, -40, 1, -40)
 creditText.Position = UDim2.new(0, 20, 0, 40)
 creditText.BackgroundTransparency = 1
-creditText.Text = "Oreo Hub Chicago\n\nVersion 6.2\n\nCrafted by Oreo x Sobi\n\n\"bọn anh là vua scrip\""
+creditText.Text = "Oreo Hub Chicago\n\nVersion 7.0\n\nCrafted by Oreo x Sobi\n\n\"Fix lụm hộp chuẩn\""
 creditText.TextColor3 = Color3.fromRGB(255, 215, 0)
 creditText.TextSize = 18
 creditText.Font = Enum.Font.GothamBold
@@ -651,7 +650,7 @@ local success, err = pcall(function()
         return true
     end
 
-    -- ===== TƯƠNG TÁC HỘP (NHẤN E NHIỀU LẦN) =====
+    -- ===== TƯƠNG TÁC HỘP (GIỮ E ĐÚNG CÁCH) =====
     local function interactWithBox(targetPos)
         local char = player.Character
         if not char then return false end
@@ -685,23 +684,20 @@ local success, err = pcall(function()
         -- 4. Đợi vật lý ổn định
         task.wait(0.3)
 
-        -- 5. Mô phỏng nhấn E nhiều lần (thay vì giữ)
+        -- 5. GIỮ E LIÊN TỤC (QUAN TRỌNG)
         local vim = game:GetService("VirtualInputManager")
-        for _ = 1, PRESS_COUNT do
-            if vim then
-                vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
-                task.wait(0.05)
-                vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
-            elseif keypress and keyrelease then
-                keypress(Enum.KeyCode.E)
-                task.wait(0.05)
-                keyrelease(Enum.KeyCode.E)
-            end
-            task.wait(PRESS_DELAY)
+        if vim then
+            vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)  -- Bấm giữ
+            task.wait(HOLD_E_TIME)                               -- Giữ trong 3s
+            vim:SendKeyEvent(false, Enum.KeyCode.E, false, game) -- Thả ra
+        elseif keypress and keyrelease then
+            keypress(Enum.KeyCode.E)
+            task.wait(HOLD_E_TIME)
+            keyrelease(Enum.KeyCode.E)
         end
 
-        -- 6. Chờ thêm 0.3s để hộp biến mất
-        task.wait(0.3)
+        -- 6. Chờ thêm 0.5s để hộp biến mất
+        task.wait(0.5)
 
         -- 7. Khôi phục trạng thái bay
         hrp.Anchored = true
@@ -797,7 +793,7 @@ local success, err = pcall(function()
         isFarming = true
         freezeCharacter(true)
         farmLoop = task.spawn(farmTask)
-        print("[Oreo] 🟢 Farm started (nhấn E nhiều lần)")
+        print("[Oreo] 🟢 Farm started (giữ E 3s)")
     end
 
     local function stopFarm()
@@ -1091,9 +1087,9 @@ pcall(function()
     print("[Oreo] ✅ ESP functions loaded!")
 end)
 
-print("✅ Oreo Hub Chicago v6.2 - UI Rộng + ESP + Farm (Nhấn E nhiều lần)")
+print("✅ Oreo Hub Chicago v7.0 - GIỮ E LỤM HỘP CHUẨN")
 print("   - Nhấn phím K để toggle menu")
 print("   - Click nút tròn để mở menu")
-print("   - Farm: Bật Auto Farm Cash (nhấn E liên tục để lụm hộp)")
+print("   - Farm: Bật Auto Farm Cash (giữ E 3 giây để lụm hộp)")
 print("   - Aimbot: Bật Enable, giữ phải chuột")
 print("   - ESP: Bật Enable để hiện box trắng và tên người chơi")
