@@ -1,7 +1,6 @@
 -- ============================================
--- OREO HUB CHICAGO - ULTIMATE FIX
--- Tác giả: Oreo x Sobi
--- Version: 7.0 - Fix lụm hộp + GitHub Ready
+-- OREO HUB CHICAGO - ESP TRẮNG + FIX TẮT/MỞ
+-- Version: 7.6 - ESP màu trắng, box + tên + khoảng cách
 -- ============================================
 
 local player = game.Players.LocalPlayer
@@ -17,7 +16,7 @@ local FOLDER = "DontDeleteTheseObjects"
 local MOVE_STEPS = 30
 local MOVE_DELAY = 0.015
 local CYCLE_DELAY = 1.5
-local HOLD_E_TIME = 3.0             -- Giữ E 3 giây (tăng nếu cần)
+local HOLD_E_TIME = 3.0
 local FLY_HEIGHT = 2.5
 local STAND_OFFSET = 1.2
 
@@ -35,7 +34,7 @@ local isAiming = false
 
 -- ===== BIẾN ESP =====
 local espEnabled = false
-local espLines = {}
+local espObjects = {}   -- Mỗi phần tử là một table chứa các object của một người chơi
 local espLoop = nil
 
 -- Lưu trạng thái ban đầu
@@ -73,7 +72,7 @@ screenGui.Parent = gui
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0, 600, 0, 500)
 mainFrame.Position = UDim2.new(0.5, -300, 0.5, -250)
-mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)      -- Màu đen tuyền
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BackgroundTransparency = 0.05
 mainFrame.BorderSizePixel = 0
 mainFrame.Active = true
@@ -109,7 +108,7 @@ local version = Instance.new("TextLabel")
 version.Size = UDim2.new(0.2, 0, 1, 0)
 version.Position = UDim2.new(0.6, 0, 0, 0)
 version.BackgroundTransparency = 1
-version.Text = "v7.0"
+version.Text = "v7.6"
 version.TextColor3 = Color3.fromRGB(100, 100, 140)
 version.TextSize = 14
 version.Font = Enum.Font.GothamMedium
@@ -520,7 +519,7 @@ local creditText = Instance.new("TextLabel")
 creditText.Size = UDim2.new(1, -40, 1, -40)
 creditText.Position = UDim2.new(0, 20, 0, 40)
 creditText.BackgroundTransparency = 1
-creditText.Text = "Oreo Hub Chicago\n\nVersion 7.0\n\nCrafted by Oreo x Sobi\n\n\"Fix lụm hộp chuẩn\""
+creditText.Text = "Oreo Hub Chicago\n\nVersion 7.6\n\nCrafted by Oreo x Sobi\n\n\"ESP trắng, tắt/mở chuẩn\""
 creditText.TextColor3 = Color3.fromRGB(255, 215, 0)
 creditText.TextSize = 18
 creditText.Font = Enum.Font.GothamBold
@@ -605,10 +604,9 @@ userInputService.InputBegan:Connect(function(input, gameProcessed)
 end)
 
 -- ============================================
--- ===== PHẦN CHỨC NĂNG FARM (FIX LỤM HỘP) =====
+-- ===== PHẦN CHỨC NĂNG FARM =====
 -- ============================================
 local success, err = pcall(function()
-    -- ===== TÌM PART =====
     local function findPart(name)
         local folder = workspace:FindFirstChild(FOLDER)
         if folder then
@@ -623,7 +621,6 @@ local success, err = pcall(function()
         return nil
     end
 
-    -- ===== LẤY VỊ TRÍ MẶT ĐẤT =====
     local function getGroundPosition(pos)
         local ray = Ray.new(pos + Vector3.new(0, 15, 0), Vector3.new(0, -30, 0))
         local hit, hitPos = workspace:FindPartOnRay(ray, player.Character)
@@ -633,7 +630,6 @@ local success, err = pcall(function()
         return pos
     end
 
-    -- ===== DI CHUYỂN TỪ TỪ =====
     local function moveTo(targetCF)
         local char = player.Character
         if not char then return false end
@@ -650,7 +646,6 @@ local success, err = pcall(function()
         return true
     end
 
-    -- ===== TƯƠNG TÁC HỘP (GIỮ E ĐÚNG CÁCH) =====
     local function interactWithBox(targetPos)
         local char = player.Character
         if not char then return false end
@@ -658,21 +653,17 @@ local success, err = pcall(function()
         local hum = char:FindFirstChildOfClass("Humanoid")
         if not hrp or not hum then return false end
 
-        -- Lấy vị trí mặt đất
         local groundPos = getGroundPosition(targetPos)
         local standHeight = groundPos.Y + STAND_OFFSET
 
-        -- 1. Bay đến vị trí trên hộp
         local flyTarget = CFrame.new(Vector3.new(targetPos.X, targetPos.Y + FLY_HEIGHT, targetPos.Z))
         moveTo(flyTarget)
         task.wait(0.15)
 
-        -- 2. Hạ xuống đứng sát hộp
         local standTarget = CFrame.new(Vector3.new(targetPos.X, standHeight, targetPos.Z))
         moveTo(standTarget)
         task.wait(0.3)
 
-        -- 3. Giải phóng ràng buộc để tương tác
         hrp.Anchored = false
         hum.PlatformStand = false
         for _, part in ipairs(char:GetDescendants()) do
@@ -681,25 +672,21 @@ local success, err = pcall(function()
             end
         end
 
-        -- 4. Đợi vật lý ổn định
         task.wait(0.3)
 
-        -- 5. GIỮ E LIÊN TỤC (QUAN TRỌNG)
         local vim = game:GetService("VirtualInputManager")
         if vim then
-            vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)  -- Bấm giữ
-            task.wait(HOLD_E_TIME)                               -- Giữ trong 3s
-            vim:SendKeyEvent(false, Enum.KeyCode.E, false, game) -- Thả ra
+            vim:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+            task.wait(HOLD_E_TIME)
+            vim:SendKeyEvent(false, Enum.KeyCode.E, false, game)
         elseif keypress and keyrelease then
             keypress(Enum.KeyCode.E)
             task.wait(HOLD_E_TIME)
             keyrelease(Enum.KeyCode.E)
         end
 
-        -- 6. Chờ thêm 0.5s để hộp biến mất
         task.wait(0.5)
 
-        -- 7. Khôi phục trạng thái bay
         hrp.Anchored = true
         hum.PlatformStand = true
         for _, part in ipairs(char:GetDescendants()) do
@@ -708,12 +695,10 @@ local success, err = pcall(function()
             end
         end
 
-        -- 8. Bay lên lại
         moveTo(flyTarget)
         return true
     end
 
-    -- ===== ĐÓNG BĂNG =====
     local function freezeCharacter(freeze)
         local char = player.Character
         if not char then return end
@@ -766,7 +751,6 @@ local success, err = pcall(function()
         end
     end
 
-    -- ===== FARM LOOP =====
     local function farmTask()
         while isFarming do
             freezeCharacter(true)
@@ -806,7 +790,6 @@ local success, err = pcall(function()
         print("[Oreo] 🔴 Farm stopped")
     end
 
-    -- ===== GÁN SỰ KIỆN FARM =====
     local afkState = false
     afBtn.MouseButton1Click:Connect(function()
         afkState = not afkState
@@ -821,7 +804,6 @@ local success, err = pcall(function()
         end
     end)
 
-    -- Anti-AFK
     local aafkState = false
     aafkBtn.MouseButton1Click:Connect(function()
         aafkState = not aafkState
@@ -839,7 +821,6 @@ local success, err = pcall(function()
         end
     end)
 
-    -- Anti-Lag
     local alagState = false
     alagBtn.MouseButton1Click:Connect(function()
         alagState = not alagState
@@ -942,7 +923,6 @@ pcall(function()
         end
     end
 
-    -- Sự kiện
     local aimState = false
     aimEnableBtn.MouseButton1Click:Connect(function()
         aimState = not aimState
@@ -993,7 +973,7 @@ pcall(function()
 end)
 
 -- ============================================
--- ===== PHẦN CHỨC NĂNG ESP =====
+-- ===== PHẦN CHỨC NĂNG ESP (FIX TẮT/MỞ, MÀU TRẮNG) =====
 -- ============================================
 pcall(function()
     local function createEsp(target)
@@ -1002,18 +982,32 @@ pcall(function()
         local hrp = char:FindFirstChild("HumanoidRootPart")
         if not hrp then return end
 
+        -- Box chính (màu trắng)
         local box = Instance.new("BoxHandleAdornment")
         box.Adornee = hrp
         box.Size = Vector3.new(3, 5, 1.5)
-        box.Color3 = Color3.fromRGB(255, 255, 255)
-        box.Transparency = 0.5
+        box.Color3 = Color3.fromRGB(255, 255, 255) -- Trắng
+        box.Transparency = 0.2
         box.ZIndex = 0
+        box.AlwaysOnTop = true
         box.Parent = hrp
 
+        -- Viền (màu trắng đậm hơn)
+        local outline = Instance.new("BoxHandleAdornment")
+        outline.Adornee = hrp
+        outline.Size = Vector3.new(3.4, 5.4, 1.9)
+        outline.Color3 = Color3.fromRGB(200, 200, 200) -- Trắng xám
+        outline.Transparency = 0.1
+        outline.ZIndex = -1
+        outline.AlwaysOnTop = true
+        outline.Parent = hrp
+
+        -- Tên (màu trắng, xuyên tường)
         local nameTag = Instance.new("BillboardGui")
         nameTag.Adornee = hrp
-        nameTag.Size = UDim2.new(0, 100, 0, 30)
-        nameTag.StudsOffset = Vector3.new(0, 3, 0)
+        nameTag.Size = UDim2.new(0, 150, 0, 30)
+        nameTag.StudsOffset = Vector3.new(0, 3.5, 0)
+        nameTag.AlwaysOnTop = true
         nameTag.Parent = hrp
 
         local nameLabel = Instance.new("TextLabel")
@@ -1021,36 +1015,77 @@ pcall(function()
         nameLabel.BackgroundTransparency = 1
         nameLabel.Text = target.Name
         nameLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-        nameLabel.TextSize = 14
+        nameLabel.TextSize = 16
         nameLabel.Font = Enum.Font.GothamBold
-        nameLabel.TextStrokeTransparency = 0.5
+        nameLabel.TextStrokeTransparency = 0.3
+        nameLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
         nameLabel.Parent = nameTag
 
-        return box, nameTag
+        -- Khoảng cách (màu trắng)
+        local distTag = Instance.new("BillboardGui")
+        distTag.Adornee = hrp
+        distTag.Size = UDim2.new(0, 100, 0, 20)
+        distTag.StudsOffset = Vector3.new(0, -0.5, 0) -- Đặt dưới chân
+        distTag.AlwaysOnTop = true
+        distTag.Parent = hrp
+
+        local distLabel = Instance.new("TextLabel")
+        distLabel.Size = UDim2.new(1, 0, 1, 0)
+        distLabel.BackgroundTransparency = 1
+        distLabel.Text = ""
+        distLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+        distLabel.TextSize = 12
+        distLabel.Font = Enum.Font.GothamMedium
+        distLabel.TextStrokeTransparency = 0.5
+        distLabel.Parent = distTag
+
+        -- Cập nhật khoảng cách (gắn với runService)
+        local connection
+        connection = runService.RenderStepped:Connect(function()
+            if not espEnabled or not hrp or not hrp.Parent then
+                if connection then connection:Disconnect() end
+                return
+            end
+            local dist = (hrp.Position - camera.CFrame.Position).Magnitude
+            distLabel.Text = string.format("%.1fm", dist)
+        end)
+
+        return {box, outline, nameTag, distTag, connection}
     end
 
+    -- Hàm xóa ESP
     local function clearEsp()
-        for _, v in ipairs(espLines) do
-            if v and v.Parent then
-                v:Destroy()
+        for _, espGroup in ipairs(espObjects) do
+            for _, obj in ipairs(espGroup) do
+                if obj then
+                    if obj:IsA("RBXScriptConnection") then
+                        obj:Disconnect()
+                    elseif obj.Parent then
+                        obj:Destroy()
+                    end
+                end
             end
         end
-        espLines = {}
+        espObjects = {}
     end
 
+    -- Hàm cập nhật ESP
     local function updateEsp()
         if not espEnabled then return end
         clearEsp()
         for _, plr in ipairs(game.Players:GetPlayers()) do
             if plr ~= player then
-                local box, nameTag = createEsp(plr)
-                if box then table.insert(espLines, box) end
-                if nameTag then table.insert(espLines, nameTag) end
+                local espGroup = createEsp(plr)
+                if espGroup then
+                    table.insert(espObjects, espGroup)
+                end
             end
         end
     end
 
+    -- Bật ESP
     local function startEsp()
+        if espEnabled then return end
         espEnabled = true
         updateEsp()
         if espLoop then task.cancel(espLoop) end
@@ -1060,9 +1095,10 @@ pcall(function()
                 task.wait(1)
             end
         end)
-        print("[Oreo] ESP ON")
+        print("[Oreo] ESP ON (trắng, xuyên tường)")
     end
 
+    -- Tắt ESP
     local function stopEsp()
         espEnabled = false
         if espLoop then task.cancel(espLoop); espLoop = nil end
@@ -1070,6 +1106,7 @@ pcall(function()
         print("[Oreo] ESP OFF")
     end
 
+    -- Sự kiện nút
     local espState = false
     espEnableBtn.MouseButton1Click:Connect(function()
         espState = not espState
@@ -1084,12 +1121,17 @@ pcall(function()
         end
     end)
 
-    print("[Oreo] ✅ ESP functions loaded!")
+    -- Đảm bảo tắt ESP khi script reload
+    game:BindToClose(function()
+        stopEsp()
+    end)
+
+    print("[Oreo] ✅ ESP functions loaded (trắng, tắt/mở chuẩn)")
 end)
 
-print("✅ Oreo Hub Chicago v7.0 - GIỮ E LỤM HỘP CHUẨN")
+print("✅ Oreo Hub Chicago v7.6 - ESP TRẮNG + FIX TẮT/MỞ")
 print("   - Nhấn phím K để toggle menu")
 print("   - Click nút tròn để mở menu")
-print("   - Farm: Bật Auto Farm Cash (giữ E 3 giây để lụm hộp)")
+print("   - Farm: Bật Auto Farm Cash (giữ E 3s)")
 print("   - Aimbot: Bật Enable, giữ phải chuột")
-print("   - ESP: Bật Enable để hiện box trắng và tên người chơi")
+print("   - ESP: Bật Enable để thấy box trắng + tên + khoảng cách (xuyên tường)")
